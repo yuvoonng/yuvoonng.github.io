@@ -1,0 +1,273 @@
+---
+import "../styles/global.css";
+import ResearchStep from "../components/ResearchStep.astro";
+
+const research = [
+  {
+    number: "01",
+    category: "GALAXY EVOLUTION",
+    title: "Dwarf galaxies",
+    description:
+      "I use DESI spectroscopy to investigate the metallicity of low-mass galaxies.",
+  },
+
+  {
+    number: "02",
+    category: "GALAXY EVOLUTION",
+    title: "The interstellar medium",
+    description:
+      "Spectroscopic emission lines provide a window into the physical conditions and chemical enrichment of galaxies.",
+  },
+
+  {
+    number: "03",
+    category: "CIRCUMGALACTIC MEDIUM",
+    title: "Cool gas around galaxies",
+    description:
+      "I use Ca II absorption to investigate the cool circumgalactic medium.",
+  },
+];
+
+---
+
+
+<html>
+
+  <head>
+    <title>Yu Voon Ng</title>
+  </head>
+
+  <body>
+    <nav class="navbar">
+    
+      <a href="/" class="nav-name">
+        Yu Voon Ng
+      </a>
+    
+      <div class="nav-links">
+        <a href="#research">Research</a>
+        <a href="#publications">Publications</a>
+        <a href="#software">Software</a>
+        <a href="#about">About</a>
+      </div>
+    
+    </nav>
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">ASTROPHYSICS · MPE</p>
+
+        <h1>Yu Voon Ng</h1>
+
+        <p class="subtitle">
+          PhD Student in Astrophysics
+        </p>
+
+        <p class="description">
+          I study galaxy evolution, the circumgalactic medium,
+          and large-scale structure using large spectroscopic surveys.
+        </p>
+      </div>
+    </section>
+
+
+    <section id="research" class="research-story">
+
+      <div class="research-visual">
+        <div class="visual-container">
+          <img
+            class="research-image image-1"
+            src="/images/quasar_absorption_spec.jpeg"
+            alt="Mass-metallicity relation"
+          />
+    
+          <img
+            class="research-image image-2"
+            src="/images/planck_map.png"
+            alt="Galaxy"
+          />
+        </div>
+      </div>
+    
+      <div class="research-content">
+    
+          {
+            research.map((item) => (
+              <ResearchStep
+                number={item.number}
+                category={item.category}
+                title={item.title}
+                description={item.description}
+              />
+            ))
+          }
+        
+        </div>
+    
+    </section>
+
+  <section id="publications" class="publications">
+
+      <div class="section-heading">
+        <p class="eyebrow">02 · PUBLICATIONS</p>
+    
+        <h2>Selected Work</h2>
+      </div>
+    
+      <div class="publication-list">
+    
+        <article class="publication">
+          <p class="publication-year">2026</p>
+    
+          <div>
+            <h3>
+              The cool circumgalactic medium traced by Ca II absorption
+            </h3>
+    
+            <p>
+              Yu Voon Ng et al.
+            </p>
+    
+            <p>
+              Astrophysical Journal
+            </p>
+          </div>
+        </article>
+    
+        <article class="publication">
+          <p class="publication-year">2026</p>
+    
+          <div>
+            <h3>
+              Metallicity of low-mass galaxies from DESI
+            </h3>
+    
+            <p>
+              Yu Voon Ng et al.
+            </p>
+    
+            <p>
+              Astrophysical Journal
+            </p>
+          </div>
+        </article>
+    
+      </div>
+    
+    </section>
+
+    <section id="software" class="software">
+
+      <div class="section-heading">
+        <p class="eyebrow">03 · SOFTWARE</p>
+    
+        <h2>Things I Build</h2>
+      </div>
+    
+      <div class="software-item">
+    
+        <h3>Tomographer</h3>
+    
+        <p>
+          An open-source software package for clustering-redshift
+          estimation using galaxy catalogs and HEALPix maps.
+        </p>
+    
+        <a href="#">
+          View on GitHub →
+        </a>
+    
+      </div>
+    
+    </section>
+
+
+    <section id="about" class="about">
+
+      <div class="section-heading">
+        <p class="eyebrow">04 · ABOUT</p>
+    
+        <h2>About Me</h2>
+      </div>
+    
+      <div class="about-content">
+    
+        <p>
+          I am a PhD student in astrophysics at the
+          Max Planck Institute for Extraterrestrial Physics
+          in Munich.
+        </p>
+    
+        <p>
+          My research focuses on galaxy evolution, the
+          circumgalactic medium, and large-scale structure.
+        </p>
+    
+      </div>
+    
+    </section>
+
+  </main>
+</body>
+</html>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const images = gsap.utils.toArray(".research-image");
+  const steps = gsap.utils.toArray(".research-step");
+
+  function activateStep(index) {
+
+    steps.forEach((step, i) => {
+      step.classList.toggle("active", i === index);
+    });
+
+    images.forEach((image, i) => {
+
+      if (i === index) {
+
+        gsap.to(image, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: "power2.out"
+        });
+
+      } else {
+
+        gsap.to(image, {
+          opacity: 0,
+          scale: 1.08,
+          duration: 0.6,
+          ease: "power2.inOut"
+        });
+
+      }
+
+    });
+  }
+
+  steps.forEach((step, index) => {
+
+    ScrollTrigger.create({
+      trigger: step,
+      start: "top center",
+      end: "bottom center",
+
+      onEnter: () => {
+        activateStep(index);
+      },
+
+      onEnterBack: () => {
+        activateStep(index);
+      }
+    });
+
+  });
+
+  activateStep(0);
+</script>
