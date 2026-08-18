@@ -1,0 +1,67 @@
+---
+const research = [
+  {
+    number: "01",
+    category: "CIRCUMGALACTIC MEDIUM",
+    title: "Cool gas around",
+    titleLine2: "low-z galaxies",
+    description:
+      "Leveraging large DESI datasets, I detect weak Ca II absorption to probe the cool circumgalactic medium at low redshift and systematically characterize how the surrounding gas depends on galaxy properties.",
+    link: "/research/cgm/",
+  },
+
+  {
+    number: "02",
+    category: "SCIENTIFIC SOFTWARE",
+    title: "Tomographer",
+    description:
+      "I optimized, validated, and packaged Tomographer, a robust and efficient clustering-redshift framework applicable to both source catalogs and intensity maps.",
+    link: "/research/tomo/",
+  },
+];
+---
+
+<section class="research-horizontal">
+
+  <div class="research-track">
+
+    {
+      [...research].reverse().map((item) => (
+        <a href={item.link} class="research-card">
+            <div class="research-content">
+
+              <h3>{item.title}<br />{item.titleLine2}</h3>
+    
+              <p class="research-description">{item.description}</p>
+            </div>
+        </a>
+      ))
+    }
+
+  </div>
+
+</section>
+
+<script>
+  const slides = document.querySelectorAll(
+    ".research-card, .research-content"
+  );
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("active");
+        } else {
+          entry.target.classList.remove("active");
+        }
+      });
+    },
+    {
+      root: document.querySelector(".research-horizontal"),
+      threshold: 0.6,
+    }
+  );
+
+  slides.forEach((slide) => observer.observe(slide));
+</script>

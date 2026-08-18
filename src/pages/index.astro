@@ -1,27 +1,32 @@
 ---
 import "../styles/global.css";
+
+import Navbar from "../components/Navbar.astro";
+import Hero from "../components/Hero.astro";
+import ResearchStory from "../components/ResearchStory.astro";
+import { ClientRouter } from "astro:transitions";
+
 ---
 
 <html lang="en">
+
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <!-- <ClientRouter /> -->
     <title>Yu Voon Ng</title>
   </head>
 
+
   <body>
-    <main class="coming-soon">
-      <div class="content">
-        <p class="eyebrow"></p>
 
-        <h1></h1>
+    <!-- <Navbar /> -->
 
-        <p class="description">
-        </p>
-
-        <p class="affiliation">
-        </p>
-      </div>
+    <main>
+      <Hero />
+      <ResearchStory />
     </main>
+
   </body>
+
 </html>

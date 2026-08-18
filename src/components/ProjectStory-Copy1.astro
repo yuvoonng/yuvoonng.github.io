@@ -1,0 +1,643 @@
+---
+const {
+  title,
+  publication,
+  publicationUrl,
+  slides,
+  keynote
+} = Astro.props;
+---
+
+<div
+  class="presentation"
+  data-slide-texts={JSON.stringify(
+    slides.map(slide => slide.text)
+  )}
+>
+
+  <section class="title-page active" id="titlePage" tabindex="0">
+
+    <div class="title-content">
+      <h1>{title}</h1>
+
+      <a
+        href={publicationUrl}
+        class="project-subtitle"
+        set:html={publication}
+      ></a>
+    </div>
+
+  <div class="title-click-right"></div>
+
+  </section>
+
+
+  <section class="keynote-page" id="keynotePage">
+
+    <iframe
+      src={keynote}
+      class="keynote-frame"
+      title="Presentation"
+    ></iframe>
+
+
+   <div class="keynote-click-left"></div>
+   <div class="keynote-click-right"></div>
+
+   <div class="keynote-overlay"></div>
+   <div id="keynoteText" class="keynote-text"></div>
+
+   <div class="keynote-progress">
+      <div id="keynoteProgressList"></div>
+    </div>
+  </section>
+
+  <div id="conclusionPage" class="conclusion-page">
+
+  <div class="conclusion-content">
+    <h1>Conclusion</h1>
+    
+  </div>
+<div class="conclusion-click-left"></div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+  const titlePage =
+    document.querySelector("#titlePage");
+
+  const keynotePage =
+    document.querySelector("#keynotePage");
+
+  const keynoteFrame =
+    document.querySelector(".keynote-frame");
+
+  const conclusionPage =
+  document.querySelector("#conclusionPage");
+
+  const keynoteText =
+    document.querySelector("#keynoteText");
+
+  const clickLeft =
+    document.querySelector(".keynote-click-left");
+    
+  const clickRight =
+    document.querySelector(".keynote-click-right");
+
+  const keynoteProgressList =
+  document.querySelector("#keynoteProgressList");
+
+  const titleClickRight =
+  document.querySelector(".title-click-right");
+
+  const conclusionClickLeft =
+  document.querySelector(".conclusion-click-left");
+
+
+conclusionClickLeft.onclick = () => {
+
+  const controller =
+    keynoteFrame.contentWindow.gShowController;
+
+  if (!controller) return;
+
+  const lastSlide =
+    controller.script.slideCount - 1;
+
+  controller.jumpToSlide(lastSlide + 1);
+
+  conclusionPage.classList.remove("active");
+  keynotePage.classList.add("active");
+
+  currentKeynoteSlide = lastSlide;
+
+  keynoteText.innerHTML =
+    slideTexts[lastSlide] || "";
+
+  updateKeynoteProgress(lastSlide);
+
+  keynoteFrame.focus();
+};
+
+
+titleClickRight.onclick = () => {
+
+  titlePage.classList.remove("active");
+  keynotePage.classList.add("active");
+
+
+  // Keynote starts at slide 0
+  currentKeynoteSlide = 0;
+  transitioningToSlide = null;
+
+  // Show text for Keynote slide 0
+  keynoteText.innerHTML =
+    slideTexts[0] || "";
+
+  // Make sure text is visible
+  keynoteText.classList.remove("fade-out");
+
+  // Give keyboard control to Keynote
+  setTimeout(() => {
+    createKeynoteProgress();
+    keynoteFrame.focus();
+  }, 0);
+
+};
+
+function createKeynoteProgress() {
+
+  const controller =
+    keynoteFrame.contentWindow.gShowController;
+
+  if (!controller) return;
+
+  const count =
+    controller.script.slideCount;
+
+  keynoteProgressList.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+
+    const item =
+      document.createElement("div");
+
+    item.className =
+      "keynote-progress-item";
+
+    item.dataset.slide = i;
+
+    item.textContent =
+      String(i + 1).padStart(2, "0");
+
+    item.onclick = () => {
+
+      const controller =
+        keynoteFrame.contentWindow.gShowController;
+    
+      if (!controller) return;
+    
+      controller.jumpToSlide(i + 1);
+    
+      keynoteFrame.focus();
+    
+    };
+
+    keynoteProgressList.appendChild(item);
+  }
+}
+
+function updateKeynoteProgress(index) {
+
+  const items =
+    keynoteProgressList.querySelectorAll(
+      ".keynote-progress-item"
+    );
+
+  items.forEach((item, i) => {
+
+    item.classList.toggle(
+      "active",
+      i === index
+    );
+
+  });
+
+  const active =
+    items[index];
+
+  if (active) {
+
+    active.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
+  }
+
+  const lastIndex = items.length - 1;
+
+if (index === 0) {
+
+  keynoteProgressList.classList.add(
+    "at-start"
+  );
+
+  keynoteProgressList.classList.remove(
+    "at-end"
+  );
+
+}
+else if (index === lastIndex) {
+
+  keynoteProgressList.classList.add(
+    "at-end"
+  );
+
+  keynoteProgressList.classList.remove(
+    "at-start"
+  );
+
+}
+else {
+
+  keynoteProgressList.classList.remove(
+    "at-start",
+    "at-end"
+  );
+
+}
+}
+
+
+let currentKeynoteSlide = 0;
+let transitioningToSlide = null;
+let slideZeroBackCount = 0;
+let allowReturnToTitle = false;
+
+clickLeft.onclick = () => {
+
+  const controller =
+    keynoteFrame.contentWindow.gShowController;
+
+  if (!controller) return;
+
+if (conclusionPage.classList.contains("active")) {
+
+  conclusionPage.classList.remove("active");
+  keynotePage.classList.add("active");
+
+  currentKeynoteSlide =
+    controller.currentSlideIndex;
+
+  keynoteText.innerHTML =
+    slideTexts[currentKeynoteSlide] || "";
+
+  keynoteFrame.focus();
+
+  return;
+}
+
+  // If Keynote is already at the true beginning,
+  // this left click means "go back to Astro title".
+  if (
+    controller.currentSlideIndex === 0 &&
+    controller.currentSceneIndex === 0
+  ) {
+
+    keynotePage.classList.remove("active");
+    titlePage.classList.add("active");
+
+    currentKeynoteSlide = 0;
+    transitioningToSlide = null;
+
+    keynoteText.innerHTML = "";
+    keynoteText.classList.remove("fade-out");
+
+    titlePage.focus();
+
+    return;
+  }
+
+  // Otherwise let Keynote go to the previous build.
+  controller.goBackToPreviousBuild(
+    "onMouseDown"
+  );
+
+  keynoteFrame.focus();
+
+};
+
+    
+    
+    clickRight.onclick = () => {
+    
+      const controller =
+        keynoteFrame.contentWindow.gShowController;
+    
+      if (!controller) return;
+
+
+       if (
+    controller.currentSlideIndex ===
+    controller.script.slideCount - 1
+  ) {
+
+    keynotePage.classList.remove("active");
+    conclusionPage.classList.add("active");
+
+    keynoteText.innerHTML = "";
+
+    return;
+  }
+
+    /* console.log("BEFORE CLICK", {
+    slide: controller.currentSlideIndex,
+    scene: controller.currentSceneIndex,
+    nextScene: controller.nextSceneIndex,
+    state: controller.state
+  }); */
+
+  controller.advanceToNextBuild(
+    "processClickOrTapAtDisplayCoOrds"
+  );
+
+  /* setTimeout(() => {
+    console.log("AFTER CLICK", {
+      slide: controller.currentSlideIndex,
+      scene: controller.currentSceneIndex,
+      nextScene: controller.nextSceneIndex,
+      state: controller.state
+    });
+  }, 500); */
+      
+      keynoteFrame.focus();
+
+    //controller.advanceToNextBuild();
+    }; 
+
+
+  // =================================
+  // Slide text data from Astro
+  // =================================
+
+  const slideshow =
+    document.querySelector(".presentation");
+
+  const slideTexts =
+    JSON.parse(
+      slideshow.dataset.slideTexts
+    );
+
+
+  // =================================
+  // Initial focus
+  // =================================
+
+  titlePage.setAttribute("tabindex", "0");
+
+  setTimeout(() => {
+    titlePage.focus();
+  }, 1000);
+
+
+  // =================================
+  // Astro title → Keynote
+  // =================================
+
+keynoteFrame.addEventListener("load", () => {
+
+  keynoteFrame.contentWindow.addEventListener(
+    "keydown",
+    (event) => {
+
+      const controller =
+        keynoteFrame.contentWindow.gShowController;
+
+      console.log(
+        "KEYNOTE KEY:",
+        event.key
+      );
+
+      console.log(
+        "KEYNOTE SLIDE:",
+        controller?.currentSlideIndex
+      );
+
+      console.log(
+        "KEYNOTE SCENE:",
+        controller?.currentSceneIndex
+      );
+
+    },
+    true
+  );
+
+});
+
+  window.addEventListener(
+    "keydown",
+    (event) => {
+
+   if (
+  conclusionPage.classList.contains("active") &&
+  event.key === "ArrowLeft"
+) {
+
+  const controller =
+    keynoteFrame.contentWindow.gShowController;
+
+  if (!controller) return;
+
+  const lastSlide =
+    controller.script.slideCount - 1;
+
+  // Put Keynote back on the actual last slide
+  controller.jumpToScene(
+    controller.scriptManager.sceneIndexFromSlideIndex(lastSlide),
+    false
+  );
+
+  conclusionPage.classList.remove("active");
+  keynotePage.classList.add("active");
+
+  currentKeynoteSlide = lastSlide;
+
+  keynoteText.innerHTML =
+    slideTexts[lastSlide] || "";
+
+  updateKeynoteProgress(lastSlide);
+
+  keynoteFrame.focus();
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  return;
+}
+
+    const controller =
+      keynoteFrame.contentWindow.gShowController;
+
+    
+    console.log(
+      "KEYNOTE STATE:",
+      controller?.state
+    );
+
+      if (
+        event.key === "ArrowRight" ||
+        event.key === "ArrowDown" ||
+        event.key === "PageDown"
+      ) {
+
+        titlePage.classList.remove("active");
+        keynotePage.classList.add("active");
+
+        // Keynote starts at slide 0
+        currentKeynoteSlide = 0;
+        transitioningToSlide = null;
+
+        // Show text for Keynote slide 0
+        keynoteText.innerHTML =
+          slideTexts[0] || "";
+
+        // Make sure text is visible
+        keynoteText.classList.remove("fade-out");
+
+        // Give keyboard control to Keynote
+        setTimeout(() => {
+          keynoteFrame.focus();
+        }, 0);
+
+      }
+
+    },
+    true
+  );
+
+
+  // =================================
+  // Slide transition STARTS
+  // =================================
+
+  window.addEventListener("message", (event) => {
+
+    if (
+      event.data?.type !==
+      "keynote-slide-will-change"
+    ) {
+      return;
+    }
+
+    const index =
+      event.data.slideIndex;
+
+
+    // Ignore duplicate notifications
+    // for the same transition
+    if (index === transitioningToSlide) {
+      return;
+    }
+
+
+    // Ignore if this is already
+    // the currently displayed slide
+    if (index === currentKeynoteSlide) {
+      return;
+    }
+
+
+    transitioningToSlide = index;
+
+
+    // Fade out the OLD text
+    keynoteText.classList.add("fade-out");
+
+  });
+
+
+  // =================================
+  // Slide transition FINISHES
+  // =================================
+
+  window.addEventListener("message", (event) => {
+
+    if (
+      event.data?.type !==
+      "keynote-slide-change"
+    ) {
+      return;
+    }
+
+    const index =
+      event.data.slideIndex;
+
+   const lastIndex =
+  slideTexts.length;
+
+console.log(
+  "SLIDE CHANGE:",
+  index,
+  "LAST:",
+  lastIndex
+);
+
+if (index === -1) {
+
+  keynotePage.classList.remove("active");
+  conclusionPage.classList.add("active");
+
+  keynoteText.innerHTML = "";
+
+}
+
+    // Ignore duplicate scene/build
+    // notifications for the same slide
+    if (index === currentKeynoteSlide) {
+      return;
+    }
+
+
+    // This slide is now actually active
+    currentKeynoteSlide = index;
+    transitioningToSlide = null;
+
+    updateKeynoteProgress(index);
+
+    // Change to the NEW text
+    keynoteText.innerHTML =
+      slideTexts[index] || "";
+
+
+    // Fade the new text in
+    requestAnimationFrame(() => {
+
+      keynoteText.classList.remove(
+        "fade-out"
+      );
+
+    });
+
+  });
+
+
+  // =================================
+  // Keynote slide 0 → Astro title
+  // =================================
+
+  window.addEventListener("message", (event) => {
+
+    if (
+      event.data?.type !==
+      "keynote-at-first-slide"
+    ) {
+      return;
+    }
+
+
+    //keynotePage.classList.remove("active");
+    //titlePage.classList.add("active");
+    allowReturnToTitle = true;
+
+    // Reset state
+    currentKeynoteSlide = 0;
+    transitioningToSlide = null;
+
+    // Remove Keynote text
+    keynoteText.innerHTML = "";
+
+
+    // Make sure fade state is cleared
+    keynoteText.classList.remove("fade-out");
+
+
+    titlePage.focus();
+
+  });
+
+</script>
