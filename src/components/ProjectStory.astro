@@ -38,6 +38,10 @@ const {
 
   <section class="keynote-page" id="keynotePage">
 
+    <div id="keynoteLoadingHint" class="keynote-loading-hint">
+  Slides may take a moment to load.
+</div>
+
     <iframe
       src={keynote}
       class="keynote-frame"
@@ -97,6 +101,10 @@ const {
 
 
 <script>
+const keynoteLoadingHint =
+  document.querySelector("#keynoteLoadingHint");
+
+
   // ============================================================
   // DOM ELEMENTS
   // ============================================================
@@ -311,6 +319,40 @@ updateTextFade();
       "fade-out"
     );
 
+const controller =
+    keynoteFrame.contentWindow.gShowController;
+
+  // Show hint only if Keynote is not ready yet
+  if (!controller) {
+
+    keynoteLoadingHint.classList.remove("hidden");
+
+    const checkKeynoteReady =
+      setInterval(() => {
+
+        const controller =
+          keynoteFrame.contentWindow.gShowController;
+
+        if (controller) {
+
+          clearInterval(checkKeynoteReady);
+
+          keynoteLoadingHint.classList.add(
+            "hidden"
+          );
+
+        }
+
+      }, 100);
+
+  } else {
+
+    // Already loaded
+    keynoteLoadingHint.classList.add(
+      "hidden"
+    );
+
+  }
 
     // Create progress bar after iframe is ready
     setTimeout(() => {
