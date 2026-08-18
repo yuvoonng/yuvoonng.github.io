@@ -294,7 +294,7 @@ body {
   display: inline-block;
   text-decoration: none;
   color: inherit;
-    
+
   font-size: clamp(1vw, 1.7vw, 2vw);
   font-family: "Roboto", sans-serif;
   font-weight: 300;
@@ -314,6 +314,10 @@ body {
       scale(1.01);
 }
 
+.project-subtitle {
+  position: relative;
+  z-index: 9999;
+}
 
 .presentation {
   position: relative;
@@ -538,7 +542,7 @@ body {
 
   width: 45%;
 
-  z-index: 9999;
+  z-index: 1;
 
   pointer-events: auto;
   cursor: pointer;
